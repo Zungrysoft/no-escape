@@ -89,6 +89,8 @@ forward animation shuffle(rectangle c_shuffle);
 forward animation compass(rectangle c_compass);
 //Like compass, but spins randomly. Only used for the title screen
 forward animation compass2(rectangle c_compass2);
+//Homes in toward the player, but has limited turning ability
+forward animation missile(rectangle c_missile);
 
 //Used with park after the block freezes
 forward animation still(rectangle c_still);
@@ -218,19 +220,19 @@ initialization {
 	level_names[1].text = "Omnidirectional Attack";
 	level_names[2].text = "Watch For Falling Rocks!";
 	level_names[3].text = "Mini-Mixer";
-	level_names[4].text = "Waveforms";
-	level_names[5].text = "Minefield Ahead";
-	level_names[6].text = "Compasses 1";
-	level_names[7].text = "March of the Spiders";
-	level_names[8].text = "Solemn Defenders";
+	level_names[4].text = "Compass Warfare";
+	level_names[5].text = "Waveforms";
+	level_names[6].text = "March of the Spiders";
+	level_names[7].text = "Solemn Defenders";
+	level_names[8].text = "Minefield Ahead";
 	level_names[9].text = "Medium-Mixer";
 	level_names[10].text = "He's Comin' Right For Us!";
 	level_names[11].text = "The Taffy Factory";
 	level_names[12].text = "Cat and Mouse";
-	level_names[13].text = "Compasses 2";
+	level_names[13].text = "Ground Zero";
 	level_names[14].text = "Mega-Mixer";
 	level_names[15].text = "Boxed In";
-	level_names[16].text = "Compasses 3";
+	level_names[16].text = "Missile Mayhem";
 	level_names[17].text = "Shadow Tanks";
 	level_names[18].text = "Monster-Mixer";
 	level_names[19].text = "The Gang's All Here!";
@@ -254,7 +256,7 @@ initialization {
 	level_costs[16] = 330;
 	level_costs[17] = 345;
 	level_costs[18] = 380;
-	level_costs[19] = 435;
+	level_costs[19] = 430;
 	
 	//for (i = 0; i < NUM_LEVELS; i ++) {level_costs[i]=0;}
 	
@@ -684,20 +686,24 @@ animation blink(rectangle bl) {
 
 animation playermove(rectangle r) {
 	if (current_level >= 0) {
-		r.x = floor(mouse_x - (PLAYER_SIZE/2));
-		r.y = floor(mouse_y - (PLAYER_SIZE/2));
-		if (r.x < 0) {
-			r.x = 0;
+		//Player movement
+		if (dead == 0) {
+			r.x = floor(mouse_x - (PLAYER_SIZE/2));
+			r.y = floor(mouse_y - (PLAYER_SIZE/2));
+			if (r.x < 0) {
+				r.x = 0;
+			}
+			if (r.x > window_width - r.w) {
+				r.x = window_width - r.w;
+			}
+			if (r.y < 0) {
+				r.y = 0;
+			}
+			if (r.y > window_height - r.h) {
+				r.y = window_height - r.h;
+			}
 		}
-		if (r.x > window_width - r.w) {
-			r.x = window_width - r.w;
-		}
-		if (r.y < 0) {
-			r.y = 0;
-		}
-		if (r.y > window_height - r.h) {
-			r.y = window_height - r.h;
-		}
+		//Kill the player if they touch an enemy or projectile
 		for (i = 0; i < MAX_SCORE; i ++) {
 			if (player touches blocks[i]) {
 				dead = 1;
@@ -710,7 +716,8 @@ animation playermove(rectangle r) {
 				player.visible = 0;
 			}
 		}
-		//timer ++;
+		
+		//Increment timer
 		if (dead == 0) {
 			timer --;
 		} else {
@@ -726,6 +733,7 @@ animation playermove(rectangle r) {
 		timer --;
 	}
 	
+	//Update score display text
 	score_text.text = score;
 	
 	k = 0;
@@ -767,6 +775,9 @@ animation playermove(rectangle r) {
 			else 				{blocks[score].animation_block = fall;}
 		}
 		else if (current_level == 4) {
+			blocks[score].animation_block = compass;
+		}
+		else if (current_level == 5) {
 			timer = floor(phase_length * .8) + random(40);
 			if (score == 0 || score == 22) {
 				blocks[score].animation_block = wave;
@@ -781,21 +792,10 @@ animation playermove(rectangle r) {
 				else				{blocks[score].animation_block = bounce;}
 			}
 		}
-		else if (current_level == 5) {
-			timer = floor(phase_length * .6) + random(30);
-			
-			i = random(4);
-			if (i < 2 || score == 0)	{blocks[score].animation_block = park;}
-			else if (i == 2)			{blocks[score].animation_block = fall;}
-			else						{blocks[score].animation_block = drift;}
-		}
 		else if (current_level == 6) {
-			blocks[score].animation_block = compass;
-		}
-		else if (current_level == 7) {
 			blocks[score].animation_block = spider;
 		}
-		else if (current_level == 8) {
+		else if (current_level == 7) {
 			i = random(2);
 			if (i == 0 && level_int < 6) {
 				blocks[score].animation_block = shuffle;
@@ -803,6 +803,14 @@ animation playermove(rectangle r) {
 			} else {
 				blocks[score].animation_block = bounce;
 			}
+		}
+		else if (current_level == 8) {
+			timer = floor(phase_length * .6) + random(30);
+			
+			i = random(4);
+			if (i < 2 || score == 0)	{blocks[score].animation_block = park;}
+			else if (i == 2)			{blocks[score].animation_block = compass;}
+			else						{blocks[score].animation_block = drift;}
 		}
 		else if (current_level == 9) {
 			//Randomly chosen spawn time for the wave
@@ -855,10 +863,7 @@ animation playermove(rectangle r) {
 			}
 		}
 		else if (current_level == 13) {
-			i = score % 7;
-			if (i == 4 && score > 10)	{blocks[score].animation_block = jitter;}
-			else if (i == 1 || i == 4)	{blocks[score].animation_block = drift;}
-			else						{blocks[score].animation_block = compass;}
+			blocks[score].animation_block = missile;
 		}
 		else if (current_level == 14) {
 			//Randomly chosen spawn time for the chase
@@ -916,7 +921,7 @@ animation playermove(rectangle r) {
 			if (score % 7 == 1) {
 				blocks[score].animation_block = stretch;
 			} else {
-				blocks[score].animation_block = compass;
+				blocks[score].animation_block = missile;
 			}
 		}
 		else if (current_level == 17) {
@@ -966,11 +971,12 @@ animation playermove(rectangle r) {
 			
 			i = random(10);
 			if (i == 0) {
-				i = random(5);
+				i = random(6);
 				if (i == 0) 		{blocks[score].animation_block = chase;}
 				else if (i == 1)	{blocks[score].animation_block = wave;}
 				else if (i == 2)	{blocks[score].animation_block = swirl;}
 				else if (i == 3)	{blocks[score].animation_block = shuffle;}
+				else if (i == 4)	{blocks[score].animation_block = missile;}
 				else				{blocks[score].animation_block = stretch;}
 			}
 			else if (i == 1)	{blocks[score].animation_block = bounce;}
@@ -1713,7 +1719,7 @@ animation follow(rectangle c_follow) {
 	y = path_y[c_follow.user_int5] * (window_height - c_follow.h);
 	
 	//Movement
-	if (abs(c_follow.x - x) < 8 && abs(c_follow.y - y) < 8) {
+	if (abs(c_follow.x - x) < 12 && abs(c_follow.y - y) < 12) {
 		//Arrived at location, go to next point
 		c_follow.user_int4 = -1;
 	} else {
@@ -1764,6 +1770,9 @@ animation compass2(rectangle c_compass2) {
 		c_compass2.red = .5;
 		c_compass2.green = .5;
 		c_compass2.blue = .5;
+		arrows[c_compass.user_int2].red = 0;
+		arrows[c_compass.user_int2].green = 0;
+		arrows[c_compass.user_int2].blue = 0;
 		c_compass2.user_double3 = 4.7;
 		//State variable
 		c_compass2.user_int5 = 0;
@@ -1866,6 +1875,9 @@ animation compass(rectangle c_compass) {
 		c_compass.red = .5;
 		c_compass.green = .5;
 		c_compass.blue = .5;
+		arrows[c_compass.user_int2].red = 0;
+		arrows[c_compass.user_int2].green = 0;
+		arrows[c_compass.user_int2].blue = 0;
 		c_compass.user_double3 = 4.7;
 		//State variable
 		c_compass.user_int5 = 0;
@@ -1981,3 +1993,89 @@ animation compass(rectangle c_compass) {
 	arrows[c_compass.user_int2].rotation = c_compass.user_int - 90;
 }
 
+animation missile(rectangle c_missile) {
+	//Initialization
+	if (c_missile.x == WAIT_POINT) {
+		c_missile.red = .6;
+		c_missile.green = 0;
+		c_missile.blue = .8;
+		arrows[c_missile.user_int2].red = 1;
+		arrows[c_missile.user_int2].green = 1;
+		arrows[c_missile.user_int2].blue = 1;
+		c_missile.user_double3 = 3 + (random(30)/10.0);
+		c_missile.user_int5 = 2;
+		i = random(4);
+		if (i == 0) {
+			c_missile.user_double = 0 - c_missile.w;
+			c_missile.user_double2 = random(window_height - c_missile.h);
+			c_missile.user_int = 0;
+		}
+		else if (i == 1) {
+			c_missile.user_double = random(window_width - c_missile.w);
+			c_missile.user_double2 = 0 - c_missile.h;
+			c_missile.user_int = 90;
+		}
+		else if (i == 2) {
+			c_missile.user_double = window_width;
+			c_missile.user_double2 = random(window_height - c_missile.h);
+			c_missile.user_int = 180;
+		}
+		else if (i == 3) {
+			c_missile.user_double = random(window_width - c_missile.w);
+			c_missile.user_double2 = window_height;
+			c_missile.user_int = 270;
+		}
+	}
+	
+	//Figure out what angle the player is at
+	if (player.x - c_missile.x == 0) {
+		//Safety to prevent divide by zero
+		if (c_missile.y > player.y) {
+			i = 270;
+		} else {
+			i = 90;
+		}
+	} else {
+		//Chase equation
+		i = floor(atan(((c_missile.y - player.y)*1.0)/((c_missile.x - player.x)*1.0)));
+		//We don't have access to atan2, so we gotta do it ourselves
+		if (player.x < c_missile.x) {
+			i += 180;
+		}
+	}
+	i = (i + 360) % 360;
+	
+	//Rotate towards the target angle
+	if (abs(c_missile.user_int - i) < c_missile.user_int5) {
+		c_missile.user_int = i;
+	} else {
+		if (c_missile.user_int < i) {
+			if (abs(c_missile.user_int - i) < 180) {
+				k = c_missile.user_int5;
+			} else {
+				k = 0 - c_missile.user_int5;
+			}
+		} else {
+			if (abs(c_missile.user_int - i) < 180) {
+				k = 0 - c_missile.user_int5;
+			} else {
+				k = c_missile.user_int5;
+			}
+		}
+		c_missile.user_int = (c_missile.user_int + 360 + k) % 360;
+	}
+	
+	//Movement
+	c_missile.user_double += cos(c_missile.user_int) * c_missile.user_double3;
+	c_missile.user_double2 += sin(c_missile.user_int) * c_missile.user_double3;
+	
+	
+	//Reflect movement in world
+	c_missile.x = floor(c_missile.user_double);
+	c_missile.y = floor(c_missile.user_double2);
+	
+	//Update arrow position
+	arrows[c_missile.user_int2].x = c_missile.x + c_missile.w/2 - arrows[c_missile.user_int2].w/2;
+	arrows[c_missile.user_int2].y = c_missile.y + c_missile.h/2 - arrows[c_missile.user_int2].h/2;
+	arrows[c_missile.user_int2].rotation = c_missile.user_int - 90;
+}
