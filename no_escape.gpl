@@ -2,7 +2,7 @@
 //Written by Calvin Martinez
 //Survive for as long as possible while all manner of angry blocks attack you.
 //Get your high scores up to unlock new levels!
-//Features 14 different enemy varieties, 20 levels, and a save and load system!
+//Features 15 different enemy varieties, 20 levels, and a save and load system!
 //Total build time: About four days
 
 int window_width = 600;
@@ -764,7 +764,7 @@ animation playermove(rectangle r) {
 			blocks[score].animation_block = drift;
 		}
 		else if (current_level == 2) {
-			timer = floor(phase_length * .7) + random(40);
+			timer = floor(timer * .7);
 			blocks[score].animation_block = fall;
 		}
 		else if (current_level == 3) {
@@ -778,12 +778,9 @@ animation playermove(rectangle r) {
 			blocks[score].animation_block = compass;
 		}
 		else if (current_level == 5) {
-			timer = floor(phase_length * .8) + random(40);
-			if (score == 0 || score == 22) {
+			timer = floor(timer * .8);
+			if (score == 0 || score == 15 || score == 22) {
 				blocks[score].animation_block = wave;
-			}
-			else if (score == 15) {
-				blocks[score].animation_block = swirl;
 			}
 			else {
 				i = random(2);
@@ -805,7 +802,7 @@ animation playermove(rectangle r) {
 			}
 		}
 		else if (current_level == 8) {
-			timer = floor(phase_length * .6) + random(30);
+			timer = floor(timer * .6);
 			
 			i = random(4);
 			if (i < 2 || score == 0)	{blocks[score].animation_block = park;}
@@ -834,7 +831,7 @@ animation playermove(rectangle r) {
 			}
 		}
 		else if (current_level == 10) {
-			timer = floor(phase_length * .6) + random(30);
+			timer = floor(timer * .6);
 			if (score == 0) {
 				blocks[score].animation_block = chase;
 			} else {
@@ -849,7 +846,7 @@ animation playermove(rectangle r) {
 		}
 		else if (current_level == 12) {
 			if (score < 12) {
-				timer = floor(phase_length * .6) + random(40);
+				timer = floor(timer * .6);
 			}
 			if (score == 3) {
 				blocks[score].animation_block = chase;
@@ -863,7 +860,11 @@ animation playermove(rectangle r) {
 			}
 		}
 		else if (current_level == 13) {
-			blocks[score].animation_block = missile;
+			if (score % 9 == 7) {
+				blocks[score].animation_block = stretch;
+			} else {
+				blocks[score].animation_block = missile;
+			}
 		}
 		else if (current_level == 14) {
 			//Randomly chosen spawn time for the chase
@@ -878,10 +879,6 @@ animation playermove(rectangle r) {
 					if (level_int < 2) {
 						level_int ++;
 						blocks[score].animation_block = stretch;
-					}
-					else if (level_int3 < 1) {
-						level_int3 ++;
-						blocks[score].animation_block = swirl;
 					}
 					else {
 						blocks[score].animation_block = spider;
@@ -905,7 +902,7 @@ animation playermove(rectangle r) {
 			path_x[3] = .75;
 			path_y[3] = .25;
 			
-			timer = floor(phase_length * .7) + random(40);
+			timer = floor(timer * .7);
 			i = random(3);
 			if (i == 0 || score == 0)	{blocks[score].animation_block = follow;}
 			else if (i == 1)	{blocks[score].animation_block = spider;}
@@ -918,11 +915,17 @@ animation playermove(rectangle r) {
 			}
 		}
 		else if (current_level == 16) {
-			if (score % 7 == 1) {
-				blocks[score].animation_block = stretch;
+			timer = floor(timer * .85);
+			if (score % 16 == 1) {
+				blocks[score].animation_block = swirl;
 			} else {
-				blocks[score].animation_block = missile;
+				if (score % 3 == 0) {
+					blocks[score].animation_block = missile;
+				} else {
+					blocks[score].animation_block = fall;
+				}
 			}
+			
 		}
 		else if (current_level == 17) {
 			blocks[score].animation_block = deploy;
@@ -946,8 +949,8 @@ animation playermove(rectangle r) {
 			path_y[3] = .5;
 			
 			i = score % 8;
-			if (i == 3) {
-				blocks[score].animation_block = stretch;
+			if (i == 6) {
+				blocks[score].animation_block = swirl;
 			} else {
 				i = random(4);
 				if (i == 0)			{blocks[score].animation_block = follow;}
