@@ -220,8 +220,8 @@ initialization {
 	level_names[1].text = "Omnidirectional Attack";
 	level_names[2].text = "Watch For Falling Rocks!";
 	level_names[3].text = "Mini-Mixer";
-	level_names[4].text = "Compass Warfare";
-	level_names[5].text = "Waveforms";
+	level_names[4].text = "Waveforms";
+	level_names[5].text = "Compass Warfare";
 	level_names[6].text = "March of the Spiders";
 	level_names[7].text = "Solemn Defenders";
 	level_names[8].text = "Minefield Ahead";
@@ -241,9 +241,9 @@ initialization {
 	level_costs[1] = 8;
 	level_costs[2] = 8;
 	level_costs[3] = 35;
-	level_costs[4] = 55;
-	level_costs[5] = 80;
-	level_costs[6] = 80;
+	level_costs[4] = 57;
+	level_costs[5] = 75;
+	level_costs[6] = 75;
 	level_costs[7] = 120;
 	level_costs[8] = 120;
 	level_costs[9] = 170;
@@ -775,9 +775,6 @@ animation playermove(rectangle r) {
 			else 				{blocks[score].animation_block = fall;}
 		}
 		else if (current_level == 4) {
-			blocks[score].animation_block = compass;
-		}
-		else if (current_level == 5) {
 			timer = floor(timer * .8);
 			if (score == 0 || score == 15 || score == 22) {
 				blocks[score].animation_block = wave;
@@ -788,6 +785,9 @@ animation playermove(rectangle r) {
 				if (i == 0)			{blocks[score].animation_block = drift;}
 				else				{blocks[score].animation_block = bounce;}
 			}
+		}
+		else if (current_level == 5) {
+			blocks[score].animation_block = compass;
 		}
 		else if (current_level == 6) {
 			blocks[score].animation_block = spider;
@@ -845,9 +845,7 @@ animation playermove(rectangle r) {
 			blocks[score].animation_block = stretch;
 		}
 		else if (current_level == 12) {
-			if (score < 12) {
-				timer = floor(timer * .6);
-			}
+			timer = floor(timer * .8);
 			if (score == 3) {
 				blocks[score].animation_block = chase;
 			}
@@ -1295,21 +1293,28 @@ animation jitter(rectangle c_jitter) {
 		c_jitter.green = 0;
 		c_jitter.blue = .35;
 		i = random(4);
-		if (i == 0) {
-			c_jitter.user_double = 0 - c_jitter.w;
-			c_jitter.user_double2 = random(window_height - c_jitter.h);
+		if (i == 3) {
+			c_jitter.user_double = random(window_width - c_jitter.w);
+			c_jitter.user_double2 = window_height;
+			//In level 12, jitter blocks only come from the sides of the screen
+			if (current_level == 12) {
+				i = 2;
+			}
 		}
-		else if (i == 1) {
+		if (i == 1) {
 			c_jitter.user_double = random(window_width - c_jitter.w);
 			c_jitter.user_double2 = 0 - c_jitter.h;
+			if (current_level == 12) {
+				i = 2;
+			}
 		}
-		else if (i == 2) {
+		if (i == 2) {
 			c_jitter.user_double = window_width;
 			c_jitter.user_double2 = random(window_height - c_jitter.h);
 		}
-		else if (i == 3) {
-			c_jitter.user_double = random(window_width - c_jitter.w);
-			c_jitter.user_double2 = window_height;
+		if (i == 0) {
+			c_jitter.user_double = 0 - c_jitter.w;
+			c_jitter.user_double2 = random(window_height - c_jitter.h);
 		}
 	}
 	
